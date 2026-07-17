@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  server:
+    build: ./server
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: 4000
+      MONGO_URI: mongodb://mongo:27017/paid_media_locker
+      JWT_SECRET: dev_only_change_me_jwt
+      JWT_EXPIRES_IN: 7d
+      FILE_TOKEN_SECRET: dev_only_change_me_file_token
+      FILE_TOKEN_TTL_SECONDS: 60
+      STARTING_BALANCE: 100
+      PREVIEW_MAX_WIDTH: 480
+      PREVIEW_JPEG_QUALITY: 45
+      CORS_ORIGIN: "*"
+    volumes:
+      - uploads_data:/app/uploads
+
+volumes:
+  mongo_data:
+  uploads_data:
